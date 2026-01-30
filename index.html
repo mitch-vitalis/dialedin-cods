@@ -54,6 +54,10 @@
         .pdf-list a:hover {
             background-color: #3a3a3a;
         }
+        .loading {
+            text-align: center;
+            color: #666666;
+        }
         .footer {
             text-align: center;
             margin-top: 50px;
@@ -70,32 +74,48 @@
         
         <h1>Chains of Distribution</h1>
         
-        <ul class="pdf-list">
-            <li><a href="Chain of Distribution - Acai Berry SLP-B2-1114.pdf" target="_blank">Acai Berry SLP-B2-1114</a></li>
-            <li><a href="Chain of Distribution - BAL-B3-121125.pdf" target="_blank">BAL-B3-121125</a></li>
-            <li><a href="Chain of Distribution - BBY-B2-111925.pdf" target="_blank">BBY-B2-111925</a></li>
-            <li><a href="Chain of Distribution - BLI-B2-11725.pdf" target="_blank">BLI-B2-11725</a></li>
-            <li><a href="Chain of Distribution - Blood Orange FCS-B2-1.pdf" target="_blank">Blood Orange FCS-B2-1</a></li>
-            <li><a href="Chain of Distribution - Blue Ice #0005.pdf" target="_blank">Blue Ice #0005</a></li>
-            <li><a href="Chain of Distribution - Blueberry #0008.pdf" target="_blank">Blueberry #0008</a></li>
-            <li><a href="Chain of Distribution - DND-B2-123025.pdf" target="_blank">DND-B2-123025</a></li>
-            <li><a href="Chain of Distribution - DRF-B2-111125.pdf" target="_blank">DRF-B2-111125</a></li>
-            <li><a href="Chain of Distribution - Dulce De Fresa STR-B2-.pdf" target="_blank">Dulce De Fresa STR-B2</a></li>
-            <li><a href="Chain of Distribution - Grand Canyon x Hulabe.pdf" target="_blank">Grand Canyon x Hulaberry</a></li>
-            <li><a href="Chain of Distribution - HUL-B3-12825.pdf" target="_blank">HUL-B3-12825</a></li>
-            <li><a href="Chain of Distribution - Hula Berry #0002.pdf" target="_blank">Hula Berry #0002</a></li>
-            <li><a href="Chain of Distribution - LUX-B3-12325.pdf" target="_blank">LUX-B3-12325</a></li>
-            <li><a href="Chain of Distribution - Lux Cherry LUX-B2-102.pdf" target="_blank">Lux Cherry LUX-B2-102</a></li>
-            <li><a href="Chain of Distribution - MRB-B1-123125.pdf" target="_blank">MRB-B1-123125</a></li>
-            <li><a href="Chain of Distribution - Rocket Berry BAL-B2-10.pdf" target="_blank">Rocket Berry BAL-B2-10</a></li>
-            <li><a href="Chain of Distribution - SLP-B5-12425.pdf" target="_blank">SLP-B5-12425</a></li>
-            <li><a href="Chain of Distribution - STA-B2-11525.pdf" target="_blank">STA-B2-11525</a></li>
-            <li><a href="Chain of Distribution - Starfruit STA-B2-11525.pdf" target="_blank">Starfruit STA-B2-11525</a></li>
+        <ul class="pdf-list" id="pdf-list">
+            <li class="loading">Loading documents...</li>
         </ul>
         
         <div class="footer">
             &copy; 2025 Dialed In Gummies
         </div>
     </div>
+
+    <script>
+        const GITHUB_USER = 'mitch-vitalis';
+        const GITHUB_REPO = 'dialedin-cods';
+        
+        async function loadPDFs() {
+            const listElement = document.getElementById('pdf-list');
+            
+            try {
+                const response = await fetch(`https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents`);
+                const files = await response.json();
+                
+                const pdfs = files.filter(file => file.name.toLowerCase().endsWith('.pdf'));
+                
+                if (pdfs.length === 0) {
+                    listElement.innerHTML = '<li class="loading">No documents found.</li>';
+                    return;
+                }
+                
+                pdfs.sort((a, b) => a.name.localeCompare(b.name));
+                
+                listElement.innerHTML = pdfs.map(pdf => {
+                    const displayName = pdf.name
+                        .replace('.pdf', '')
+                        .replace('Chain of Distribution - ', '');
+                    return `<li><a href="${pdf.download_url}" target="_blank">${displayName}</a></li>`;
+                }).join('');
+                
+            } catch (error) {
+                listElement.innerHTML = '<li class="loading">Error loading documents. Please refresh.</li>';
+            }
+        }
+        
+        loadPDFs();
+    </script>
 </body>
 </html>
